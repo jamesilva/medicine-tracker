@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  [type='text'][aria-invalid='true'],
+  [type='password'][aria-invalid='true'],
+  [type='date'][aria-invalid='true'],
+  [type='datetime'][aria-invalid='true'],
+  [type='datetime-local'][aria-invalid='true'],
+  [type='month'][aria-invalid='true'],
+  [type='week'][aria-invalid='true'],
+  [type='email'][aria-invalid='true'],
+  [type='number'][aria-invalid='true'],
+  [type='search'][aria-invalid='true'],
+  [type='tel'][aria-invalid='true'],
+  [type='time'][aria-invalid='true'],
+  [type='url'][aria-invalid='true'],
+  [type='color'][aria-invalid='true'],
+  textarea[aria-invalid='true'] {
+    @apply border-red-500;
+  }
+}
