@@ -69,7 +69,7 @@ export let action: ActionFunction = async ({ request }) => {
 
   let user = await createUser(email, password);
 
-  return createUserSession({ request, userId: user.id });
+  return createUserSession({ request, userId: user.id, redirectTo: '/' });
 };
 
 export default function Signup() {

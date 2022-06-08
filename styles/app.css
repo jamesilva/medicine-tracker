@@ -18,6 +18,10 @@
   [type='url'][aria-invalid='true'],
   [type='color'][aria-invalid='true'],
   textarea[aria-invalid='true'] {
-    @apply border-red-500;
+    @apply border-red-500 focus:outline-red-500;
+  }
+
+  [data-reach-menu-item][data-selected] {
+    @apply bg-slate-100;
   }
 }

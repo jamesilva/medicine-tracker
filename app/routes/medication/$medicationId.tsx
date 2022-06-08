@@ -53,6 +53,7 @@ export default function Edit() {
           <h2 className='text-xl font-medium '>Edit Medication</h2>
           <button
             type='button'
+            aria-label='close'
             onClick={onClose}
             className='flex items-center hover:text-red-700 hover:scale-125'
           >

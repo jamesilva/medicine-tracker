@@ -86,6 +86,7 @@ export default function New() {
           <button
             type='button'
             onClick={onClose}
+            aria-label='close'
             className='flex items-center hover:text-red-700 hover:scale-125'
           >
             <svg

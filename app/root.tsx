@@ -13,21 +13,29 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
-  Form,
+  useSubmit,
 } from '@remix-run/react';
 import React, { useEffect } from 'react';
 
 import { getUser } from './utils/session.server';
 import type { User } from '~/models/user.server';
 
-// import * as Popover from '@radix-ui/react-popover';
-import * as Popover from '@radix-ui/react-dropdown-menu';
+import {
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuLink,
+  MenuPopover,
+  MenuItems,
+} from '@reach/menu-button';
+import Rect, { useRect } from '@reach/rect';
+import { positionRight } from '@reach/popover';
 
 import styles from './tailwind.css';
+// import menuStyles from '@reach/menu-button/styles.css';
 
 type LoaderData = {
   user: Pick<User, 'id' | 'email'> | null;
-  stat: string;
 };
 
 export const links: LinksFunction = () => {
@@ -42,16 +50,12 @@ export const meta: MetaFunction = () => ({
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUser(request);
-  console.log('in loader', user);
-  let words = user ? `user` : `no user`;
-  return json<LoaderData>({ user, stat: words });
+
+  return json<LoaderData>({ user });
 };
 
 export default function App() {
-  const { user, stat } = useLoaderData<LoaderData>();
-  useEffect(() => {
-    console.log('in component ', user, stat);
-  }, [user, stat]);
+  const { user } = useLoaderData<LoaderData>();
 
   return (
     <html lang='en'>
@@ -71,24 +75,19 @@ export default function App() {
             <div>
               {user ? (
                 <UserPopover>
-                  <button
-                    type='button'
-                    className=' text-slate-700 py-2 pl-4 rounded hover:bg-slate-100 flex items-center'
+                  <span className=' font-semibold mr-2'>{user.email}</span>
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    className='h-5 w-5'
+                    viewBox='0 0 20 20'
+                    fill='currentColor'
                   >
-                    <span className=' font-semibold mr-2'>{user.email}</span>
-                    <svg
-                      xmlns='http://www.w3.org/2000/svg'
-                      className='h-5 w-5'
-                      viewBox='0 0 20 20'
-                      fill='currentColor'
-                    >
-                      <path
-                        fillRule='evenodd'
-                        d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'
-                        clipRule='evenodd'
-                      />
-                    </svg>
-                  </button>
+                    <path
+                      fillRule='evenodd'
+                      d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'
+                      clipRule='evenodd'
+                    />
+                  </svg>
                 </UserPopover>
               ) : (
                 <>
@@ -124,46 +123,59 @@ export default function App() {
   );
 }
 
-type Props = {
-  children: React.ReactNode;
-};
-
-// function UserPopover({ children }: Props) {
-//   return (
-//     <Popover.Root modal={false}>
-//       <Popover.Trigger asChild={true}>{children}</Popover.Trigger>
-//       <Popover.Content
-//         sideOffset={20}
-//         align='end'
-//         onCloseAutoFocus={(e) => e.preventDefault()}
-//       >
-//         <div className='flex flex-col bg-white gap-y-2 w-28 p-4 rounded shadow-md'>
-//           <Popover.Item asChild>
-//             <Link to='/'>Account</Link>
-//           </Popover.Item>
-//           <Popover.Item asChild={true}>
-//             <form method='post' action='/logout'>
-//               <button type='submit'>Log out</button>
-//             </form>
-//           </Popover.Item>
-//         </div>
-//       </Popover.Content>
-//     </Popover.Root>
-//   );
-// }
-
-function UserPopover({ children }: Props) {
+function UserPopover({ children }: { children: React.ReactNode }) {
+  const [observe, setObserve] = React.useState(true);
+  let submit = useSubmit();
+  // your own ref
+  let buttonRef = React.useRef(null);
+  let popoverRef = React.useRef(null);
+  let buttonRect = useRect(buttonRef);
   return (
-    <Popover.Root>
-      <Popover.Trigger asChild>{children}</Popover.Trigger>
-      <Popover.Content sideOffset={20} align='end'>
-        <div className='flex flex-col bg-white gap-y-2 w-28 p-4 rounded shadow-md'>
-          <Link to='/'>Account</Link>
-          <Form method='post' action='/logout'>
-            <button type='submit'>Log out</button>
-          </Form>
-        </div>
-      </Popover.Content>
-    </Popover.Root>
+    <Menu>
+      {({ isExpanded }) => (
+        <>
+          <MenuButton
+            ref={buttonRef}
+            className={`text-slate-700 py-2 pl-4 rounded hover:bg-slate-100 focus:bg-slate-100 flex items-center rounded-b-none ${
+              isExpanded ? 'bg-slate-100' : 'bg-white'
+            }`}
+          >
+            {children}
+          </MenuButton>
+          <MenuPopover
+            position={() => {
+              return {
+                width: buttonRect?.width / 1.5,
+                right: window.innerWidth - buttonRect?.right,
+                top: buttonRect?.bottom,
+              };
+            }}
+          >
+            <div
+              ref={popoverRef}
+              className=' rounded-b bg-white focus:outline-none'
+            >
+              <MenuItems className='flex flex-col gap-y-2 p-2 focus:outline-1'>
+                <MenuLink
+                  as={Link}
+                  to='/'
+                  className='p-2 hover:bg-slate-200 flex justify-end w-full rounded'
+                >
+                  Account
+                </MenuLink>
+                <MenuItem
+                  className='p-2 hover:bg-slate-200 rounded cursor-pointer w-full flex justify-end '
+                  onSelect={() =>
+                    submit(null, { method: 'post', action: '/logout' })
+                  }
+                >
+                  Logout
+                </MenuItem>
+              </MenuItems>
+            </div>
+          </MenuPopover>
+        </>
+      )}
+    </Menu>
   );
 }

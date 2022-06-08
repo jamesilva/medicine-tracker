@@ -3,6 +3,7 @@ import { redirect, json } from '@remix-run/node';
 import type { ActionFunction, LoaderFunction } from '@remix-run/node';
 import { createUserSession, getUserId } from '../utils/session.server';
 import { verifyLogin } from '~/models/user.server';
+import { useEffect, useRef } from 'react';
 
 type ActionData = {
   fields?: {
@@ -76,11 +77,12 @@ export default function Login() {
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get('redirectTo') || '/';
   const actionData = useActionData<ActionData>();
+
   return (
     <section className='w-full pt-20'>
       <Form
         method='post'
-        className='w-[90vw] max-w-md mx-auto bg-white rounded p-8 ring-1 ring-[#bcd1d1] '
+        className='w-[90vw] max-w-md mx-auto bg-white rounded p-8 ring-1 ring-[#bcd1d1] focus:bg-red-500'
       >
         <div className='mb-8'>
           <label className='mb-2 block font-semibold' htmlFor='email-input'>
